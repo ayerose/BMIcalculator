@@ -34,12 +34,53 @@ class ViewController: UIViewController {
     
     
     @IBAction func clickHereButton_Tapped(_ sender: Any) {
+        checkBMI(value: calculateBMI())
     }
     
-    func calculateBMI() {
+    func calculateBMI() -> Double {
         
+        let height = Double(sizeTextField.text!)!
+        let weight = Double(weightTextField.text!)!
         
-
+        let heightSquare = height * height
+        let bmi = weight / heightSquare
+        
+        return bmi
+        
+    }
+    
+    func checkBMI(value: Double) {
+        var message = ""
+        
+//        if value <= 20 {
+//            message = "Underweight"
+//        } else if value >= 20 && value <= 25 {
+//            message = "Normal weight"
+//        } else if value >= 25 &&  value <= 30 {
+//            message = "overweight"
+//        } else {
+//            message = "strongly overweight"
+//        }
+        switch value {
+        case 0...20: message = "Underweight"
+        case 20...25: message = "Normal weight"
+        case 25...30: message = "overweight"
+        default:
+            message = "strongly overweight"
+        }
+        createAlert(message: message)
+    }
+       
+    
+    // MARK: - create alert
+    
+    func createAlert(message: String) {
+        let alert = UIAlertController(title: "\(nameTextField.text!)", message: message, preferredStyle: .alert)
+        let action1 = UIAlertAction(title: "OK", style: .default) {(action) in}
+        
+        alert.addAction(action1)
+        self.present(alert, animated: true, completion: nil)
+        
     }
     
     func addTargetToTextField(){
@@ -47,8 +88,33 @@ class ViewController: UIViewController {
         nameTextField.addTarget(self, action: #selector(textFieldChanged), for: UIControl.Event.editingChanged)
         sizeTextField.addTarget(self, action: #selector(textFieldChanged), for: UIControl.Event.editingChanged)
         weightTextField.addTarget(self, action: #selector(textFieldChanged), for: UIControl.Event.editingChanged)
-        
+        // if user is done writing in name text field
+        nameTextField.addTarget(self, action: #selector(nameTextFieldChange), for: UIControl.Event.editingDidEnd)
+        sizeTextField.addTarget(self, action: #selector(sizeTextFieldChange), for: UIControl.Event.editingDidEnd)
     }
+    
+    // capitalize first letter in name textfield
+   @objc func nameTextFieldChange() {
+       let name  = nameTextField.text!
+       nameTextField.text = name.capitalizingFirstLetter()
+    }
+    
+    @objc func sizeTextFieldChange() {
+        let sizeAsString  = sizeTextField.text!
+        let characterset = CharacterSet(charactersIn: ".,")
+        //only executed if characters include . & ,
+        if sizeAsString.rangeOfCharacter(from: characterset) != nil {
+         let sizeAsDouble = Double(sizeAsString)!
+         sizeTextField.text = "\(Int(sizeAsDouble * 100.0))"
+        } else if !(sizeTextField.text!.isEmpty) {
+            let sizeAsCm = Double (sizeTextField.text!)!
+            sizeTextField.text = "\(sizeAsCm / 100)"
+            
+        }
+     }
+    
+    
+    
     @objc func textFieldChanged() {
         // check if every textfield has input
         if !(nameTextField.text!.isEmpty) && !(sizeTextField.text!.isEmpty ) && !(weightTextField.text!.isEmpty ){
@@ -68,7 +134,17 @@ class ViewController: UIViewController {
 }
 
 
-
+extension String {
+    
+    // Erster Buchstabe groß, Rest klein
+    func capitalizingFirstLetter() -> String {
+      return prefix(1).uppercased() + self.lowercased().dropFirst()
+    }
+ 
+    mutating func capitalizeFirstLetter() {
+      self = self.capitalizingFirstLetter()
+    }
+}
 
 
 
